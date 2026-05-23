@@ -49,3 +49,38 @@ decode.py     Decoder (do not modify)
 | `/api/encode` | POST JSON `{ text, seed }` | Returns raw `video/mp4` with metadata headers |
 | `/api/decode` | POST multipart `file` + `seed` | Returns `{ message, fingerprint, charCount, avgConfidence }` |
 | `/api/health` | GET | Health check |
+
+## Deploy to Vercel (frontend only)
+
+Vercel hosts the **React UI** in `web/`. The Python API (`numpy`, `opencv`) must run elsewhere (Render, Railway, Fly.io, etc.).
+
+### Fix 404 NOT_FOUND
+
+If Vercel shows `404: NOT_FOUND`, the project was likely built from the repo root (no `index.html` there). Use one of these:
+
+**Option A — Root Directory (recommended)**  
+In Vercel → Project → Settings → General:
+
+| Setting | Value |
+|---------|--------|
+| Root Directory | `web` |
+| Framework Preset | Vite |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+**Option B — Repo root**  
+A root [`vercel.json`](vercel.json) is included; it builds `web/` and outputs `web/dist`.
+
+### Environment variable
+
+After you deploy the API somewhere, add in Vercel → Settings → Environment Variables:
+
+```
+VITE_API_URL = https://your-api-host.example.com
+```
+
+Redeploy. Without this, encode/decode API calls will fail (the static site has no `/api` routes).
+
+### Redeploy
+
+Push to GitHub, or in Vercel click **Redeploy** after changing Root Directory / env vars.

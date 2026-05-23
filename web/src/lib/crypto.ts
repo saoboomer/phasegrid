@@ -22,6 +22,13 @@ export class CryptoError extends Error {
   }
 }
 
+/** Set VITE_API_URL in Vercel (e.g. https://your-api.onrender.com) — leave empty for local dev proxy */
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? ''
+
+function apiUrl(path: string) {
+  return `${API_BASE}${path}`
+}
+
 const MIN_LOADING_MS = 300
 
 async function withMinDelay<T>(promise: Promise<T>): Promise<T> {
@@ -47,7 +54,7 @@ async function parseError(res: Response): Promise<string> {
 export async function encodeMessage(text: string, seed = 42): Promise<EncodeResult> {
   return withMinDelay(
     (async () => {
-      const res = await fetch('/api/encode', {
+      const res = await fetch(apiUrl('/api/encode'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, seed }),
@@ -72,7 +79,7 @@ export async function decodeVideo(file: File, seed = 42): Promise<DecodeResult> 
       form.append('file', file)
       form.append('seed', String(seed))
 
-      const res = await fetch('/api/decode', {
+      const res = await fetch(apiUrl('/api/decode'), {
         method: 'POST',
         body: form,
       })
