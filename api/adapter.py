@@ -14,6 +14,7 @@ if str(_ROOT) not in sys.path:
 
 from encode import ALPHABET, SEED_DEF, T_CHAR, T_DELIM, T_SYNC, encode  # noqa: E402
 from decode import decode  # noqa: E402
+from transcode import make_browser_playable_mp4  # noqa: E402
 
 _ALPHABET_SET = set(ALPHABET)
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024
@@ -62,8 +63,7 @@ def encode_video(text: str, seed: int = SEED_DEF) -> tuple[bytes, str, float, fl
             except SystemExit as exc:
                 raise AdapterError("Encoding failed.", 500) from exc
 
-        with open(tmp_path, "rb") as f:
-            video_bytes = f.read()
+        video_bytes = make_browser_playable_mp4(tmp_path)
 
         if not video_bytes:
             raise AdapterError("Encoder produced empty output.", 500)

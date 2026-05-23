@@ -50,6 +50,8 @@ decode.py     Decoder (do not modify)
 | `/api/decode` | POST multipart `file` + `seed` | Returns `{ message, fingerprint, charCount, avgConfidence }` |
 | `/api/health` | GET | Health check |
 
+Encoded videos are transcoded to **H.264** (`imageio-ffmpeg`) so they play in the browser preview. Decoding still accepts the downloaded MP4.
+
 ## Deploy to Vercel (frontend only)
 
 Vercel hosts the **React UI** in `web/`. The Python API (`numpy`, `opencv`) must run elsewhere (Render, Railway, Fly.io, etc.).

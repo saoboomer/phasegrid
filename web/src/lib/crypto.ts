@@ -62,7 +62,11 @@ export async function encodeMessage(text: string, seed = 42): Promise<EncodeResu
       if (!res.ok) {
         throw new CryptoError(await parseError(res), res.status)
       }
-      const blob = await res.blob()
+      const raw = await res.blob()
+      const blob =
+        raw.type === 'video/mp4'
+          ? raw
+          : new Blob([await raw.arrayBuffer()], { type: 'video/mp4' })
       const fingerprint = res.headers.get('X-Fingerprint') ?? ''
       const durationSec = parseFloat(res.headers.get('X-Duration-Sec') ?? '0')
       const sizeKb = parseFloat(res.headers.get('X-Size-Kb') ?? '0')
