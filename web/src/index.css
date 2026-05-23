@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Sora', system-ui, sans-serif;
+
+  --color-accent-start: #7c6cf0;
+  --color-accent-end: #e879a9;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+:root.dark,
+:root:not(.light) {
+  --bg: #14121a;
+  --bg-gradient-1: rgba(124, 108, 240, 0.12);
+  --bg-gradient-2: rgba(232, 121, 169, 0.08);
+  --surface: #1e1b26;
+  --surface-elevated: #262230;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f4f0f8;
+  --text-muted: #a89eb8;
+  --text-dim: #6b6178;
+  --input-bg: rgba(30, 27, 38, 0.8);
+  --shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  --glass: rgba(30, 27, 38, 0.72);
+}
+
+:root.light {
+  color-scheme: light;
+  --bg: #faf8f5;
+  --bg-gradient-1: rgba(124, 108, 240, 0.08);
+  --bg-gradient-2: rgba(232, 121, 169, 0.06);
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --border: rgba(20, 18, 26, 0.08);
+  --text: #14121a;
+  --text-muted: #5c5468;
+  --text-dim: #8a8294;
+  --input-bg: #ffffff;
+  --shadow: 0 20px 40px rgba(20, 18, 26, 0.08);
+  --glass: rgba(255, 255, 255, 0.85);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, var(--bg-gradient-1), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 100%, var(--bg-gradient-2), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+}
+
+::selection {
+  background: rgba(124, 108, 240, 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-start);
+  outline-offset: 2px;
+}
+
+.accent-gradient {
+  background: linear-gradient(135deg, var(--color-accent-start), var(--color-accent-end));
+}
+
+.accent-text {
+  background: linear-gradient(135deg, var(--color-accent-start), var(--color-accent-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
