@@ -4,14 +4,17 @@
   "outputDirectory": "web/dist",
   "installCommand": "cd web && npm install",
   "framework": null,
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://phasegrid-api.onrender.com"
+    }
+  },
   "rewrites": [
+    { "handle": "filesystem" },
     {
       "source": "/api/:path*",
       "destination": "https://phasegrid-api.onrender.com/api/:path*"
     },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

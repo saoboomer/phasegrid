@@ -1,0 +1,27 @@
+.letter-glitch__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.letter-glitch__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.letter-glitch__vignette--outer {
+  background: radial-gradient(circle, rgba(20, 18, 26, 0) 55%, rgba(20, 18, 26, 0.92) 100%);
+}
+
+.letter-glitch__vignette--center {
+  background: radial-gradient(circle, rgba(20, 18, 26, 0.75) 0%, rgba(20, 18, 26, 0) 55%);
+}
+
+:root.light .letter-glitch__vignette--outer {
+  background: radial-gradient(circle, rgba(250, 248, 245, 0) 55%, rgba(250, 248, 245, 0.95) 100%);
+}
+
+:root.light .letter-glitch__vignette--center {
+  background: radial-gradient(circle, rgba(250, 248, 245, 0.8) 0%, rgba(250, 248, 245, 0) 55%);
+}

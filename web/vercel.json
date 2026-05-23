@@ -1,3 +1,15 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://phasegrid-api.onrender.com"
+    }
+  },
+  "rewrites": [
+    { "handle": "filesystem" },
+    {
+      "source": "/api/:path*",
+      "destination": "https://phasegrid-api.onrender.com/api/:path*"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

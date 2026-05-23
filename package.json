@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "npm-run-all -p dev:api dev:web",
     "dev:web": "npm run dev --prefix web",
-    "dev:api": "cd api && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:api": "cd backend && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
     "build": "npm run build --prefix web",
-    "install:all": "npm install --prefix web && cd api && pip install -r requirements.txt && pip install -r ../requirements.txt"
+    "install:all": "npm install --prefix web && pip install -r requirements.txt"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"

@@ -79,10 +79,7 @@ async def api_decode(
     seed: int = Form(default=SEED_DEF),
 ):
     if not file.filename or not file.filename.lower().endswith(".mp4"):
-        raise HTTPException(
-            status_code=400,
-            detail="Upload an .mp4 video file.",
-        )
+        raise HTTPException(status_code=400, detail="Upload an .mp4 video file.")
 
     content_type = file.content_type or ""
     if content_type and content_type not in ("video/mp4", "application/octet-stream"):

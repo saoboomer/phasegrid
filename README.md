@@ -46,7 +46,8 @@ pip install -r requirements.txt
 ## Project layout
 
 ```
-api/          FastAPI bridge (adapter only)
+backend/      FastAPI bridge (adapter only)
+api/          Vercel serverless proxy to backend (TypeScript only)
 web/          React + Vite + Tailwind SPA
 encode.py     Encoder (do not modify)
 decode.py     Decoder (do not modify)
@@ -66,25 +67,26 @@ Encoded videos are transcoded to **H.264** (`imageio-ffmpeg`) so they play in th
 
 The **UI** goes on Vercel. The **API** must run on a Python host (we recommend [Render](https://render.com)) because encode/decode need OpenCV.
 
-### Step 1 — Deploy the API on Render
+### Step 1 — Deploy the API on Render (required)
 
 1. Push this repo to GitHub.
-2. On [Render](https://dashboard.render.com) → **New** → **Blueprint** → connect the repo (uses [`render.yaml`](render.yaml)).
-3. Wait for deploy; copy the service URL, e.g. `https://phasegrid-api.onrender.com`.
+2. [Render](https://dashboard.render.com) → **New** → **Blueprint** → connect repo → uses [`render.yaml`](render.yaml).
+3. Wait until **phasegrid-api** is live. Test: `https://phasegrid-api.onrender.com/api/health` should return `{"status":"ok"}`.
+
+If that URL returns **404**, the API is not deployed yet — Vercel cannot encode/decode until this works.
 
 ### Step 2 — Vercel frontend
 
-1. Import the same repo in Vercel.
-2. **Root Directory:** leave as repo root (uses root [`vercel.json`](vercel.json)) **or** set to `web` and remove root vercel.json.
-3. **Environment variable** (recommended):
+1. Import the repo in Vercel (repo root is fine).
+2. Optional env var if your Render URL differs:
 
    ```
-   VITE_API_URL = https://phasegrid-api.onrender.com
+   PHASEGRID_API_URL = https://phasegrid-api.onrender.com
    ```
 
-   Redeploy after saving.
+3. Redeploy.
 
-Root [`vercel.json`](vercel.json) also proxies `/api/*` → `https://phasegrid-api.onrender.com` so encode/decode work even without `VITE_API_URL` once Render is live. Update that URL in `vercel.json` if your Render service has a different name.
+[`vercel.json`](vercel.json) proxies `/api/*` to Render and sets `VITE_API_URL` at build time. [`api/[...path].ts`](api/[...path].ts) is the serverless fallback proxy.
 
 ### Why you saw 405
 

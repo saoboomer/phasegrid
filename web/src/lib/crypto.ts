@@ -50,6 +50,20 @@ function apiNotConfiguredMessage(): string {
 }
 
 async function parseError(res: Response): Promise<string> {
+  if (res.status === 404) {
+    return (
+      'API not found (404). Deploy the Python API on Render and set PHASEGRID_API_URL in Vercel. ' +
+      'See the project README.'
+    )
+  }
+  if (res.status === 502) {
+    try {
+      const data = await res.json()
+      if (typeof data.detail === 'string') return data.detail
+    } catch {
+    }
+    return 'API backend unreachable. Deploy on Render and configure PHASEGRID_API_URL in Vercel.'
+  }
   if (res.status === 405) {
     return apiNotConfiguredMessage()
   }

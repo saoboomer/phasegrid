@@ -1,42 +1,37 @@
-import ColorBends from '../ColorBends/ColorBends'
+import LetterGlitch from '../LetterGlitch/LetterGlitch'
 
-/** Turquoise, white, red, with hints of yellow and purple — wider bands */
-const PHASEGRID_COLORS = [
-  '#2DD4BF',
+/** Turquoise, cyan, red, yellow, purple — no white */
+const GLITCH_COLORS = [
+  '#0D9488',
   '#14B8A6',
-  '#FFFFFF',
-  '#F8FAFC',
+  '#2DD4BF',
+  '#06B6D4',
+  '#22D3EE',
   '#EF4444',
   '#DC2626',
+  '#FB7185',
   '#FBBF24',
+  '#F59E0B',
   '#A855F7',
+  '#8B5CF6',
+  '#C084FC',
 ]
 
 export function Background() {
   return (
     <div
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[var(--bg)]"
       aria-hidden
     >
-      <div className="absolute inset-0 bg-[var(--bg)]/85" />
-      <div className="absolute inset-0 opacity-90">
-        <ColorBends
-          rotation={90}
-          speed={0.2}
-          colors={PHASEGRID_COLORS}
-          transparent
-          autoRotate={0.15}
-          scale={1}
-          frequency={1}
-          warpStrength={1}
-          mouseInfluence={1}
-          parallax={0.5}
-          noise={0.15}
-          iterations={1}
-          intensity={1.5}
-          bandWidth={11}
-        />
-      </div>
+      <LetterGlitch
+        className="h-full w-full"
+        glitchColors={GLITCH_COLORS}
+        glitchSpeed={45}
+        centerVignette
+        outerVignette
+        smooth
+        characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+      />
     </div>
   )
 }

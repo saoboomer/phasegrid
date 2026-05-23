@@ -77,8 +77,5 @@ def transcode_to_h264(src_path: str) -> bytes:
 
 
 def make_browser_playable_mp4(src_path: str) -> bytes:
-    """
-    OpenCV writes mp4v (MPEG-4 Part 2), which HTML5 <video> rejects.
-    Always transcode to H.264 for preview and download.
-    """
+    """Always transcode to H.264 for browser <video> preview."""
     return transcode_to_h264(src_path)
