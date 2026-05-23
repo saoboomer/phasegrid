@@ -39,7 +39,20 @@ async function withMinDelay<T>(promise: Promise<T>): Promise<T> {
   return result
 }
 
+function apiNotConfiguredMessage(): string {
+  if (import.meta.env.PROD && !API_BASE) {
+    return (
+      'API not configured. Set VITE_API_URL in Vercel to your backend URL ' +
+      '(e.g. https://phasegrid-api.onrender.com), then redeploy.'
+    )
+  }
+  return 'API unreachable. Start the backend: cd api && uvicorn main:app --port 8000'
+}
+
 async function parseError(res: Response): Promise<string> {
+  if (res.status === 405) {
+    return apiNotConfiguredMessage()
+  }
   try {
     const data = await res.json()
     if (typeof data.detail === 'string') return data.detail

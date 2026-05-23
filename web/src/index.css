@@ -63,17 +63,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, var(--bg-gradient-1), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 90% 100%, var(--bg-gradient-2), transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
 #root {
   position: relative;
   z-index: 1;

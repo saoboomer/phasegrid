@@ -1,5 +1,7 @@
 """FastAPI bridge for PhaseGrid encode/decode."""
 
+import os
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -13,13 +15,17 @@ app = FastAPI(
     version="0.2.0",
 )
 
+_extra_origins = os.environ.get("CORS_ORIGINS", "").split(",")
+_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    *[o.strip() for o in _extra_origins if o.strip()],
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=_origins,
+    allow_origin_regex=r"https://.*\.(vercel\.app|onrender\.com)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

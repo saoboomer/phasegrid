@@ -15,7 +15,7 @@ export function Card({ title, subtitle, className = '', children }: CardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       className={[
-        'flex flex-col rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8',
+        'flex flex-col rounded-2xl border border-[var(--border)] bg-[var(--surface)]/90 p-6 backdrop-blur-md sm:p-8',
         'shadow-[var(--shadow)] transition-shadow duration-300 hover:shadow-[0_28px_56px_rgba(0,0,0,0.12)]',
         className,
       ].join(' ')}

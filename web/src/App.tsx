@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Toaster } from 'sonner'
+import { Background } from './components/layout/Background'
 import { Container } from './components/layout/Container'
 import { Header } from './components/layout/Header'
 import { EncodePanel } from './components/EncodePanel'
@@ -22,7 +23,8 @@ function App() {
           },
         }}
       />
-      <div className="min-h-svh">
+      <Background />
+      <div className="relative min-h-svh">
         <Container>
           <Header />
 
