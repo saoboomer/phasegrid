@@ -8,12 +8,15 @@ interface VideoPreviewProps {
 export function VideoPreview({ src }: VideoPreviewProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [error, setError] = useState(false)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     setError(false)
-    if (videoRef.current && src) {
-      videoRef.current.load()
-    }
+    setReady(false)
+    const el = videoRef.current
+    if (!el || !src) return
+    el.src = src
+    el.load()
   }, [src])
 
   if (!src) {
@@ -29,28 +32,37 @@ export function VideoPreview({ src }: VideoPreviewProps) {
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.35 }}
-      className="overflow-hidden rounded-xl border border-[var(--border)] bg-black shadow-inner"
+      className="relative aspect-video w-full overflow-hidden rounded-xl border border-[var(--border)] bg-black shadow-inner"
     >
       {error ? (
-        <div className="flex aspect-video flex-col items-center justify-center gap-2 px-4 text-center">
-          <p className="text-sm text-[var(--text-muted)]">
-            Preview unavailable in this browser.
-          </p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
+          <p className="text-sm text-[var(--text-muted)]">Could not play this video in the browser.</p>
           <p className="text-xs text-[var(--text-dim)]">
-            Use Download MP4 below — decoding from the file still works.
+            Run <code className="text-[var(--text)]">pip install -r requirements.txt</code> from the
+            repo root, restart the API, then try again.
           </p>
         </div>
       ) : (
-        <video
-          ref={videoRef}
-          controls
-          playsInline
-          preload="metadata"
-          className="aspect-video w-full max-h-[420px] bg-black object-contain"
-          onError={() => setError(true)}
-        >
-          <source src={src} type="video/mp4" />
-        </video>
+        <>
+          {!ready && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            </div>
+          )}
+          <video
+            key={src}
+            ref={videoRef}
+            src={src}
+            controls
+            playsInline
+            muted
+            preload="auto"
+            className="h-full w-full object-contain"
+            onLoadedData={() => setReady(true)}
+            onCanPlay={() => setReady(true)}
+            onError={() => setError(true)}
+          />
+        </>
       )}
     </motion.div>
   )

@@ -9,23 +9,33 @@ Production web interface for the PhaseGrid optical credential encoder/decoder. C
 
 ## Run (development)
 
-**Terminal 1 — API** (from repo root):
+From the **repo root** (not inside `web/` alone):
 
 ```bash
-cd api
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-**Terminal 2 — Web UI**:
-
-```bash
-cd web
 npm install
+npm run install:all
 npm run dev
 ```
 
-Open http://localhost:5173. Vite proxies `/api` to the backend on port 8000.
+That starts the API on port **8000** and the UI on **http://localhost:5173**.
+
+Or run separately:
+
+```bash
+# Terminal 1
+npm run dev:api
+
+# Terminal 2
+npm run dev:web
+```
+
+**API deps** (required for in-browser video preview):
+
+```bash
+pip install -r requirements.txt
+```
+
+`imageio-ffmpeg` bundles ffmpeg and transcodes output to H.264 so `<video>` preview works.
 
 ## Usage
 

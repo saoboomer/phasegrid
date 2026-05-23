@@ -29,7 +29,13 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Fingerprint", "X-Duration-Sec", "X-Size-Kb"],
+    expose_headers=[
+        "X-Fingerprint",
+        "X-Duration-Sec",
+        "X-Size-Kb",
+        "X-Video-Codec",
+        "Content-Type",
+    ],
 )
 
 
@@ -56,7 +62,9 @@ def api_encode(body: EncodeRequest):
                 "X-Fingerprint": fingerprint,
                 "X-Duration-Sec": str(duration_sec),
                 "X-Size-Kb": str(size_kb),
-                "Content-Disposition": 'attachment; filename="phasegrid.mp4"',
+                "X-Video-Codec": "h264",
+                "Content-Disposition": 'inline; filename="phasegrid.mp4"',
+                "Cache-Control": "no-store",
             },
         )
     except AdapterError as exc:
