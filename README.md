@@ -122,3 +122,68 @@ Redeploy. Without this, encode/decode API calls will fail (the static site has n
 ### Redeploy
 
 Push to GitHub, or in Vercel click **Redeploy** after changing Root Directory / env vars.
+
+## Experimental binary multi-dimensional modulation
+
+The repository now includes an **optional research CLI** in
+\`phasegrid_modulation.py\`. It leaves the legacy A-Z encoder, decoder, and web
+UI unchanged.
+
+### Profiles
+
+| Profile | Code | Information bits / trajectory | Trajectory + delimiter | Ideal payload rate |
+|---|---|---:|---:|---:|
+| \`fast\` | Shortened BCH(31,21,5) → (25,15,≥5) | 15 | 2.0 s + 0.5 s | 6.0 bit/s |
+| \`robust\` | Shortened BCH(15,11,3) → (14,10,≥3) | 10 | 1.5 s + 0.5 s | 5.0 bit/s |
+
+The 26-dimensional basis has one DC/DC component that is removed by the
+existing decoder's per-cell zero-mean normalization. The new modulation leaves
+that component unused and maps code bits onto the remaining basis components.
+Each transmitted coefficient vector has L2 norm 3.0, matching the legacy
+codebook's coefficient energy.
+
+Both profiles use bounded Chase-style soft list decoding around their BCH
+hard-decision decoder. The FAST profile corrects up to two hard bit errors per
+block; ROBUST corrects one. CRC-32 checks packet integrity against accidental
+decoding errors. CRC is **not** cryptographic authentication.
+
+The new binary preamble holds each full-grid sync level for two frames (7.5 Hz
+at 30 fps), instead of toggling on every frame at the 30 fps Nyquist limit.
+The decoder expects the complete two-second opening preamble.
+
+### Use the CLI
+
+From the repository root:
+
+\`\`\`bash
+python phasegrid_modulation.py encode "HELLO PHASEGRID" hello-fast.mp4 --profile fast
+python phasegrid_modulation.py decode hello-fast.mp4 --profile auto
+\`\`\`
+
+Use \`--profile robust\` when camera exposure or temporal integration is
+expected to be less favourable. \`auto\` tries both profiles and accepts only a
+packet with a matching profile id and valid CRC.
+
+### Throughput interpretation
+
+The ideal coded rates are 6.0 bit/s (FAST) and 5.0 bit/s (ROBUST), compared
+with the legacy 26-ary symbol-channel upper bound of
+\`log2(26) / 4.5 ≈ 1.04 bit/s\`. A raw byte stream represented as two A-Z
+symbols per byte carries 8 bits in 9 seconds (0.89 bit/s). These are framing
+calculations, not measured camera throughput.
+
+Run the software-only channel benchmark with:
+
+\`\`\`bash
+python benchmarks/benchmark_modulation.py --trials 20
+\`\`\`
+
+The benchmark applies synthetic temporal blur, spatial mixing, and sensor
+noise. Its results are repeatable engineering checks, **not camera evidence**.
+Real screen-to-camera recordings are still required to measure BER, packet
+error rate, false acceptance, synchronization tolerance, and the actual
+throughput on target devices.
+
+The new CLI is not yet wired into the FastAPI endpoints or React UI. The
+existing application continues using the legacy A-Z profile until the new
+channel has been validated and integrated deliberately.

@@ -1,0 +1,30 @@
+name: PhaseGrid Python tests
+
+on:
+  push:
+    branches:
+      - main
+      - feature/multidimensional-modulation-v1
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Run synthetic modulation benchmark
+        run: python benchmarks/benchmark_modulation.py --trials 10 --payload-bytes 24
