@@ -11,6 +11,11 @@ import argparse
 import math
 
 import numpy as np
+import sys
+from pathlib import Path
+
+# Make the repository root importable when this file is executed as a script.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from phasegrid_modulation import (
     FAST,
