@@ -26,3 +26,5 @@ jobs:
           python -m pip install -r requirements.txt pytest
       - name: Run tests
         run: python -m pytest -q
+      - name: Run synthetic modulation benchmark
+        run: python benchmarks/benchmark_modulation.py --trials 10 --payload-bytes 24
