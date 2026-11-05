@@ -288,6 +288,22 @@ def _payload_vectors(
     return vectors, metadata
 
 
+def _make_binary_sync_frames(fps: int, duration: float, hold_frames: int = 2) -> list[np.ndarray]:
+    """Lower-frequency preamble: hold each full-grid level for two frames.
+
+    The legacy one-frame alternation sits at the 30 fps Nyquist limit and is
+    easily attenuated by camera exposure. Holding each state for two frames
+    lowers the sync tone to 7.5 Hz at 30 fps.
+    """
+    if hold_frames < 1:
+        raise ValueError("hold_frames must be positive")
+    count = int(round(fps * duration))
+    return [
+        np.full((10, 10), (frame_index // hold_frames) % 2, dtype=np.uint8)
+        for frame_index in range(count)
+    ]
+
+
 def encode_payload_to_frames(
     payload: bytes,
     profile: str | ModulationProfile = FAST,
@@ -312,7 +328,6 @@ def encode_payload_to_frames(
         compute_fingerprint,
         frame_to_image,
         make_delimiter_frames,
-        make_sync_frames,
         render_trajectory,
     )
 
@@ -324,14 +339,14 @@ def encode_payload_to_frames(
     )
 
     all_frames: list[np.ndarray] = []
-    all_frames.extend(make_sync_frames(fps, T_SYNC))
+    all_frames.extend(_make_binary_sync_frames(fps, T_SYNC))
     for vector in vectors:
         trajectory = render_trajectory(
             vector, spatial_bases, temporal_bases, frame_count_per_block
         )
         all_frames.extend(list(trajectory))
         all_frames.extend(make_delimiter_frames(fps, T_DELIM))
-    all_frames.extend(make_sync_frames(fps, 1.0))
+    all_frames.extend(_make_binary_sync_frames(fps, 1.0))
 
     duration_seconds = len(all_frames) / float(fps)
     metadata.update(
@@ -381,26 +396,20 @@ def encode_payload_to_video(
 
 
 def _find_opening_sync(global_means: np.ndarray, fps: float, threshold: float = 50.0) -> int:
-    """Find the end frame of the initial alternating black/white sync burst.
+    """Validate the two-second 7.5 Hz preamble and return its exact end frame.
 
-    The legacy detector smooths differences and returns one or two frames late
-    for short profiles. This detector uses the first sustained run of raw large
-    frame-to-frame differences; the returned index is the first payload frame.
+    The packet format deliberately keeps the complete opening preamble. Its
+    known duration gives a stable boundary even when a camera's exposure blurs
+    individual transitions; at least 35% of transitions must remain visible.
     """
-    if global_means.ndim != 1 or global_means.size < 2:
-        raise SyncError("Video is too short to contain a synchronisation burst")
-    diffs = np.abs(np.diff(global_means * 255.0))
-    active = diffs > threshold
-    min_run = max(8, int(round(fps * 0.4)))
-    for start in range(0, len(active) - min_run + 1):
-        if not np.all(active[start : start + min_run]):
-            continue
-        end = start
-        while end < len(active) and active[end]:
-            end += 1
-        return end
-    raise SyncError("Opening sync burst not found; keep the complete video frame")
-
+    expected = int(round(2.0 * fps))
+    if global_means.ndim != 1 or global_means.size <= expected:
+        raise SyncError("Video is too short to contain a complete opening sync burst")
+    preamble = global_means[: expected + 1]
+    diffs = np.abs(np.diff(preamble * 255.0))
+    if diffs.size == 0 or float(np.mean(diffs > threshold)) < 0.35:
+        raise SyncError("Opening sync burst not found; keep the complete video preamble")
+    return expected
 
 def _bits_to_bytes(bits: list[int] | np.ndarray) -> bytes:
     values = np.asarray(bits, dtype=np.uint8)
@@ -497,9 +506,8 @@ def decode_payload_from_cell_signals(
     while position + actual_frames <= signals.shape[0]:
         current_means = global_means[position : position + actual_frames] * 255.0
         global_diffs = np.abs(np.diff(current_means))
-        # Closing sync alternates the entire grid on every frame; payload
-        # trajectories do not. Detect it by the fraction of large differences.
-        if global_diffs.size and np.mean(global_diffs > 80.0) > 0.65:
+        # Closing sync alternates every two frames; payload trajectories do not.
+        if global_diffs.size and np.mean(global_diffs > 80.0) > 0.25:
             break
 
         window = normalized[position : position + actual_frames]
