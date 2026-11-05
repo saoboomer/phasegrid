@@ -11,8 +11,10 @@ from phasegrid_modulation import (
     _payload_vectors,
     decode_information_block,
     decode_payload_from_frames,
+    decode_payload_from_video,
     encode_information_block,
     encode_payload_to_frames,
+    encode_payload_to_video,
     get_profile,
 )
 
@@ -104,3 +106,17 @@ def test_crc_rejects_a_modified_packet():
 def test_binary_packet_payload_limit_is_enforced():
     with pytest.raises(ValueError, match="exceeds"):
         _packet_bytes(b"x" * (1_000_001), FAST)
+
+
+
+def test_mp4_file_round_trip(tmp_path):
+    payload = b"PhaseGrid MP4 round trip"
+    output_path = tmp_path / "phasegrid-fast.mp4"
+    metadata = encode_payload_to_video(
+        payload, str(output_path), profile=FAST, fps=30, cell_px=24
+    )
+    assert output_path.exists()
+    assert metadata["frame_count"] > 0
+    decoded, stats = decode_payload_from_video(str(output_path), profile=FAST)
+    assert decoded == payload
+    assert stats["crc32_ok"] is True
